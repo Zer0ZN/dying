@@ -120,7 +120,12 @@ export function buildMountainMesh() {
       // run across exactly that span: bare rock at the waterline, snow on the
       // crests. Start it higher and the window fills with blue rock; start it
       // lower and every foothill in sight turns white.
-      const alt = smoothstep(12, 52, h);
+      // The band a standing eye actually sees through a north window is only
+      // 0-9 degrees, i.e. roughly 10-45 m of height at 250-430 m. If snow only
+      // starts at 52 m that whole band is bare rock in shadow, which is exactly
+      // how the windows came to look like a flat blue sheet. Start the ramp at
+      // the waterline instead so the visible flank carries snow.
+      const alt = smoothstep(9, 48, h);
 
       // gullies: stretched noise keeps snow in the chutes
       const gully = fbm(x * 0.0135, z * 0.0038, { seed: 121, octaves: 4 });
@@ -169,7 +174,12 @@ export function buildMountainMesh() {
       colors[idx3] = col.r;
       colors[idx3 + 1] = col.g;
       colors[idx3 + 2] = col.b;
-      snowAttr[i] = snow * smoothstep(20, 120, h);
+      // The shader-side snow terms (alpenglow, cold-sky bounce) are gated by
+      // this attribute, so its altitude ramp has to match the vertex-side one
+      // above. It used to fade in over 20-120 m, which meant every slope the
+      // north windows actually frame (h = 10-45 m) carried vSnow = 0 and the
+      // range read as a flat dark band no matter how the colours were tuned.
+      snowAttr[i] = snow * smoothstep(6, 58, h);
     }
   }
 
@@ -270,6 +280,13 @@ export function buildMountainMesh() {
            // the range reads as a dark blue smudge through the windows, which
            // is exactly what was wrong with the view from the sofa.
            totalEmissiveRadiance += vec3(0.034, 0.047, 0.068) * hi * vSnow;
+           // Rock carries a smaller share of the same dome light. A massif
+           // 250-430 m away stands between the viewer and half the sky, and
+           // the punctual lights here are far too weak and too directional to
+           // stand in for that; without this the range flattens into a single
+           // dark blue value and the window band loses its ridges.
+           float up = clamp(vWNormal.y, 0.0, 1.0);
+           totalEmissiveRadiance += mix(vec3(0.009, 0.013, 0.021), vec3(0.030, 0.041, 0.060), up) * (1.0 - vSnow * 0.55);
          }`
       );
   };
