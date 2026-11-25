@@ -146,8 +146,13 @@ export class LightingSystem {
     // One broad, weak area-ish fill per window: a spotlight aimed away from the
     // glass into the room reads better than a point light and costs less than
     // a real RectAreaLight with a shadow map.
+    //
+    // penumbra is 1.0 on purpose. At 0.82 the cone's outer edge was still a
+    // hard curve, and because these lights sit right at the wall it printed on
+    // the plaster as a pale trapezoid with a visible border — the "patch" that
+    // looked like a texture seam. A fully soft edge fades the spill out instead.
     for (const o of WIN.living) {
-      const sp = new THREE.SpotLight(0x9ab8d8, 10.0, 21, Math.PI * 0.40, 0.82, 1.3);
+      const sp = new THREE.SpotLight(0x9ab8d8, 10.0, 21, Math.PI * 0.40, 1.0, 1.3);
       const cx = o.cx;
       sp.position.set(cx, CABIN.floorY + WIN.sill + WIN.height * 0.62, CABIN.innerZ - 0.4);
       sp.target.position.set(cx * 0.82, CABIN.floorY + 0.9, -CABIN.innerZ * 0.4);
@@ -162,7 +167,7 @@ export class LightingSystem {
     // stronger than a daylight spill would be, and it has to reach the bed
     // rather than the floor in front of it.
     for (const o of WIN.bedroom) {
-      const sp = new THREE.SpotLight(0x8fb4d8, 8.5, 21, Math.PI * 0.50, 0.88, 1.35);
+      const sp = new THREE.SpotLight(0x8fb4d8, 8.5, 21, Math.PI * 0.50, 1.0, 1.35);
       const cx = o.cx;
       sp.position.set(cx, CABIN.floorY + WIN.sill + WIN.height * 0.66, CABIN.innerZ - 0.5);
       sp.target.position.set(cx * 0.86, CABIN.floorY + 0.55, -CABIN.innerZ * 0.72);
@@ -194,7 +199,7 @@ export class LightingSystem {
     // end of the room fell to a flat black shape in the exterior and doorway
     // frames.
     for (const sw of cabin.southWindows) {
-      const sp = new THREE.SpotLight(0x7fa3cc, sw.h < 1.6 ? 2.6 : 4.2, 14, Math.PI * 0.46, 0.94, 1.5);
+      const sp = new THREE.SpotLight(0x7fa3cc, sw.h < 1.6 ? 2.6 : 4.2, 14, Math.PI * 0.46, 1.0, 1.5);
       sp.position.set(sw.cx, sw.sillY + sw.h * 0.6, -CABIN.innerZ + 0.5);
       sp.target.position.set(sw.cx * 0.9, CABIN.floorY + 0.8, CABIN.innerZ * 0.55);
       sp.castShadow = false;
