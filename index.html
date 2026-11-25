@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+<title>Dying · 湖畔小屋</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23041a33'/%3E%3Cpath d='M4 22 L14 10 L20 17 L26 12 L30 22 Z' fill='%232b527d'/%3E%3Cpath d='M14 10 L17 13 L14 15 L11 13 Z' fill='%23ffad87'/%3E%3C/svg%3E" />
+<style>
+  :root {
+    --ice: #9fc4e8;
+    --warm: #ffb168;
+    --ink: #03070c;
+    --line: rgba(159, 196, 232, 0.18);
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background: #03070c;
+    color: #cfe0f0;
+    font-family: "Inter", "Helvetica Neue", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  #scene {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    outline: none;
+  }
+
+  /* --- overlays ------------------------------------------------------- */
+  .vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 50% 46%, rgba(0,0,0,0) 42%, rgba(2,6,12,0.42) 100%);
+    mix-blend-mode: multiply;
+    z-index: 2;
+  }
+  .grain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    opacity: .045;
+    mix-blend-mode: overlay;
+    z-index: 3;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+  }
+
+  #crosshair {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    width: 7px;
+    height: 7px;
+    margin: -3.5px 0 0 -3.5px;
+    border-radius: 50%;
+    border: 1px solid rgba(207, 224, 240, 0.42);
+    background: rgba(207, 224, 240, 0.10);
+    z-index: 4;
+    pointer-events: none;
+    transition: transform .18s ease, opacity .3s ease;
+  }
+  body.locked #crosshair { transform: scale(1.55); background: rgba(255,177,104,.22); border-color: rgba(255,177,104,.55); }
+
+  /* --- hud ------------------------------------------------------------- */
+  #hud {
+    position: fixed;
+    left: 26px;
+    top: 24px;
+    z-index: 5;
+    pointer-events: none;
+    user-select: none;
+    transition: opacity .4s ease;
+  }
+  #hud .title {
+    font-size: 22px;
+    letter-spacing: .34em;
+    font-weight: 300;
+    text-transform: uppercase;
+    color: #dbe8f5;
+    text-shadow: 0 2px 18px rgba(0,0,0,.65);
+  }
+  #hud .sub {
+    margin-top: 6px;
+    font-size: 11px;
+    letter-spacing: .26em;
+    color: rgba(159, 196, 232, .68);
+  }
+  #hud .meta {
+    margin-top: 16px;
+    font-size: 10.5px;
+    line-height: 1.9;
+    letter-spacing: .12em;
+    color: rgba(159, 196, 232, .46);
+  }
+
+  #stats {
+    position: fixed;
+    right: 24px;
+    bottom: 20px;
+    z-index: 5;
+    font-variant-numeric: tabular-nums;
+    font-size: 10.5px;
+    letter-spacing: .14em;
+    color: rgba(159, 196, 232, .40);
+    text-align: right;
+    pointer-events: none;
+    user-select: none;
+    line-height: 1.7;
+  }
+  #stats b { color: rgba(207, 228, 244, .72); font-weight: 500; }
+
+  #hint {
+    position: fixed;
+    left: 50%;
+    bottom: 74px;
+    transform: translateX(-50%);
+    z-index: 5;
+    font-size: 11px;
+    letter-spacing: .2em;
+    color: rgba(207, 228, 244, .58);
+    padding: 9px 18px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(4, 12, 22, .42);
+    backdrop-filter: blur(6px);
+    pointer-events: none;
+    white-space: nowrap;
+    transition: opacity .5s ease;
+  }
+  body.locked #hint { opacity: 0; }
+
+  #views {
+    position: fixed;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    z-index: 6;
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 92vw;
+  }
+  #views button {
+    font: inherit;
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    color: rgba(207, 228, 244, .66);
+    background: rgba(4, 12, 22, .52);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 6px 11px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: color .18s, border-color .18s, background .18s;
+  }
+  #views button:hover {
+    color: #ffd9b0;
+    border-color: rgba(255, 177, 104, .45);
+    background: rgba(18, 26, 38, .72);
+  }
+  #sound {
+    position: fixed;
+    right: 22px;
+    top: 20px;
+    z-index: 7;
+    font: inherit;
+    font-size: 10.5px;
+    letter-spacing: .12em;
+    color: rgba(207, 228, 244, .58);
+    background: rgba(4, 12, 22, .48);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 7px 12px;
+    cursor: pointer;
+    backdrop-filter: blur(6px);
+    transition: color .2s, border-color .2s, background .2s;
+  }
+  #sound:hover { color: #ffd9b0; border-color: rgba(255, 177, 104, .45); }
+  #sound.on { color: #ffd9b0; border-color: rgba(255, 177, 104, .38); }
+
+  /* --- loading --------------------------------------------------------- */
+  #loading {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    background:
+      radial-gradient(ellipse at 50% 62%, #123458 0%, #071733 46%, #03070c 100%);
+    transition: opacity .75s ease;
+  }
+  #loading.hidden { opacity: 0; pointer-events: none; }
+  #loading .lt {
+    font-size: 15px;
+    letter-spacing: .52em;
+    text-transform: uppercase;
+    color: rgba(219, 232, 245, .92);
+    font-weight: 300;
+  }
+  #loading .ls {
+    font-size: 10.5px;
+    letter-spacing: .3em;
+    color: rgba(159, 196, 232, .55);
+  }
+  #loading .bar {
+    width: 168px;
+    height: 1px;
+    background: rgba(159, 196, 232, .16);
+    overflow: hidden;
+    position: relative;
+  }
+  #loading .bar::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    width: 42%;
+    background: linear-gradient(90deg, transparent, rgba(255, 177, 104, .85), transparent);
+    animation: slide 1.55s ease-in-out infinite;
+  }
+  @keyframes slide {
+    0% { transform: translateX(-120%); }
+    100% { transform: translateX(300%); }
+  }
+  #loading .err {
+    max-width: 74vw;
+    font-size: 12px;
+    line-height: 1.6;
+    color: #ffb0a0;
+    text-align: left;
+  }
+  #loading .err pre {
+    white-space: pre-wrap;
+    font-size: 11px;
+    color: rgba(255, 200, 190, .8);
+    max-height: 44vh;
+    overflow: auto;
+  }
+
+  body.hide-ui #hud,
+  body.hide-ui #stats,
+  body.hide-ui #hint,
+  body.hide-ui #views,
+  body.hide-ui #sound,
+  body.hide-ui #crosshair { display: none; }
+</style>
+</head>
+<body>
+  <canvas id="scene"></canvas>
+  <div class="vignette"></div>
+  <div class="grain"></div>
+  <div id="crosshair"></div>
+
+  <button id="sound" type="button">♪ 音乐 关</button>
+
+  <div id="hud">
+    <div class="title">Dying</div>
+    <div class="sub">湖畔 · 蓝调时刻</div>
+    <div class="meta">
+      北方山脉 · 静水<br />
+      北欧高地 · 初冬
+    </div>
+  </div>
+
+  <div id="stats">
+    <b id="fps">0</b> fps · <b id="draw">0</b> draws · <b id="tris">0</b> tris
+  </div>
+
+  <div id="hint">点击画面开始 · WASD 移动 · 鼠标环视 · Shift 快走 · M 音乐 · H 隐藏界面</div>
+
+  <div id="views">
+    <button data-view="living">客厅</button>
+    <button data-view="bedroom">卧室</button>
+    <button data-view="window">窗前</button>
+    <button data-view="exterior">屋外</button>
+    <button data-view="shore">湖岸</button>
+    <button data-view="lake">湖面</button>
+    <button data-view="peak">主峰</button>
+    <button data-view="reset">回到起点</button>
+  </div>
+
+  <div id="loading">
+    <div class="lt">Dying</div>
+    <div class="bar"></div>
+    <div class="ls">正在生成山脉与湖面…</div>
+  </div>
+
+  <script type="module" src="./dist/app.js"></script>
+  <script>
+    // view buttons + pointer lock state (kept outside the module so they work
+    // even if the scene fails to build)
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('#views button');
+      if (!btn) return;
+      const v = btn.dataset.view;
+      const d = window.__D;
+      if (!d) return;
+      if (v === 'reset') d.resetView(); else d.view(v);
+    });
+    document.addEventListener('pointerlockchange', () => {
+      document.body.classList.toggle('locked', !!document.pointerLockElement);
+    });
+  </script>
+</body>
+</html>

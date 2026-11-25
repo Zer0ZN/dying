@@ -1,0 +1,20 @@
+{
+  "name": "dying",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch",
+    "shot": "python tools/shot.py",
+    "all": "node build.mjs && python tools/shot.py --all --hide-ui"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "esbuild": "^0.25.12",
+    "three": "^0.180.0"
+  }
+}
