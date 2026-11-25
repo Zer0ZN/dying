@@ -49,14 +49,18 @@ export class CabinBuilder {
   _materials() {
     const siding = woodSiding({
       seed: 5,
-      base: [104, 40, 48],
+      // Authored bright on purpose: the siding only ever sees the blue ambient
+      // term (the key light is a 5-degree alpenglow rake that barely touches a
+      // vertical wall), so a literal 0x5c2028 albedo rendered as RGB (13,0,3).
+      // Raising the base to 152 keeps the final image at the spec's wine red.
+      base: [152, 60, 68],
       plankCount: 13,
       size: 1024,
       repeat: [1, 1],
     });
     const sidingTrim = woodSiding({
       seed: 12,
-      base: [72, 26, 33],
+      base: [118, 44, 52],
       plankCount: 9,
       size: 512,
       repeat: [1, 1],

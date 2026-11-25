@@ -105,7 +105,7 @@ export class LightingSystem {
 
     // Just enough ambient to keep shadowed material detail away from pure
     // black; any more and the room turns monochrome blue.
-    const amb = new THREE.AmbientLight(0x44618a, 0.17);
+    const amb = new THREE.AmbientLight(0x44618a, 0.21);
     this.group.add(amb);
     this.amb = amb;
 
@@ -138,7 +138,7 @@ export class LightingSystem {
     bounceFloor.position.copy(lampPos).add(new THREE.Vector3(-0.25, -1.15, 0.15));
     this.group.add(bounceFloor);
 
-    const bounceCeil = new THREE.PointLight(0xffb877, 0.55, 4.5, 2.0);
+    const bounceCeil = new THREE.PointLight(0xffb877, 1.5, 6.5, 2.0);
     bounceCeil.position.copy(lampPos).add(new THREE.Vector3(0.15, 0.92, -0.1));
     this.group.add(bounceCeil);
 

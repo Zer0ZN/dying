@@ -133,7 +133,7 @@ export const WORLD = {
     intensity: 1.15,
   },
 
-  fogNear: 0.00055,
+  fogNear: 0.0011,
   fogFar: 0.9,
 };
 
