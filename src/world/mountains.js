@@ -112,7 +112,7 @@ export function buildMountainMesh() {
       // sit high enough that couloirs and the shaded side of every crest stay
       // bare, because those dark ribs are the only thing that reads as a
       // mountain at this distance; too low and the range turns to meringue.
-      const slope = clamp((ny - 0.34) / 0.38, 0, 1);
+      const slope = clamp((ny - 0.40) / 0.40, 0, 1);
 
       // Altitude ramp, calibrated to what the window can frame. From the sofa
       // the opening covers roughly 0-9 degrees, i.e. the foot of the range
@@ -125,7 +125,7 @@ export function buildMountainMesh() {
       // starts at 52 m that whole band is bare rock in shadow, which is exactly
       // how the windows came to look like a flat blue sheet. Start the ramp at
       // the waterline instead so the visible flank carries snow.
-      const alt = smoothstep(9, 48, h);
+      const alt = smoothstep(14, 62, h);
 
       // gullies: stretched noise keeps snow in the chutes
       const gully = fbm(x * 0.0135, z * 0.0038, { seed: 121, octaves: 4 });
@@ -279,14 +279,15 @@ export function buildMountainMesh() {
            // reproduce that, so the snow carries its own sky term. Without it
            // the range reads as a dark blue smudge through the windows, which
            // is exactly what was wrong with the view from the sofa.
-           totalEmissiveRadiance += vec3(0.034, 0.047, 0.068) * hi * vSnow;
-           // Rock carries a smaller share of the same dome light. A massif
-           // 250-430 m away stands between the viewer and half the sky, and
-           // the punctual lights here are far too weak and too directional to
-           // stand in for that; without this the range flattens into a single
-           // dark blue value and the window band loses its ridges.
+           // Everything this range sees is sky. Under a twilight dome the whole
+           // massif carries an ambient term proportional to its own albedo, so
+           // snow reads bright and rock stays dark without any extra tuning —
+           // that separation is exactly what the windows were missing. The
+           // punctual lights are far too weak and too directional to stand in
+           // for a sky, and without this term the range collapses to one flat
+           // dark-blue value and the window band loses its ridges entirely.
            float up = clamp(vWNormal.y, 0.0, 1.0);
-           totalEmissiveRadiance += mix(vec3(0.009, 0.013, 0.021), vec3(0.030, 0.041, 0.060), up) * (1.0 - vSnow * 0.55);
+           totalEmissiveRadiance += vColor.rgb * (0.040 + 0.100 * up);
          }`
       );
   };

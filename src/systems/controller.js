@@ -159,9 +159,20 @@ export class FirstPersonController {
     this.velocity.y -= GRAVITY * dt;
 
     // ---- integrate --------------------------------------------------------
+    const prevX = this.position.x;
+    const prevZ = this.position.z;
     this.position.x += this.velocity.x * dt;
     this.position.z += this.velocity.z * dt;
     this.collision.resolve(this.position, EYE_HEIGHT + 0.12);
+
+    // Stop at wading depth rather than letting the player walk out onto the
+    // falling lake bed and sink below the water plane.
+    if (this.collision.atWaterEdge(this.position)) {
+      this.position.x = prevX;
+      this.position.z = prevZ;
+      this.velocity.x *= 0.15;
+      this.velocity.z *= 0.15;
+    }
 
     this.position.y += this.velocity.y * dt;
 

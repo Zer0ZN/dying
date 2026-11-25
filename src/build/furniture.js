@@ -141,7 +141,7 @@ function furnitureMaterials() {
   // the albedo() note in util.js.
   // Deep brown, close to black, exactly as the brief asks. Anything lighter
   // under a 2700 K lamp reads as honey rather than as a dark wool sofa.
-  const fabric = fabricWeave({ seed: 31, base: [82, 70, 60], size: 512, repeat: [2, 2], threads: 160 });
+  const fabric = fabricWeave({ seed: 31, base: [62, 54, 46], size: 512, repeat: [2, 2], threads: 160 });
   const fabricBlue = fabricWeave({ seed: 44, base: [56, 68, 88], size: 512, repeat: [2, 2], threads: 150 });
   // grainSurface, NOT woodFloor. woodFloor paints plank COURSES, which is
   // correct for a floor but on a 0.5 m cabinet door reads as brickwork —

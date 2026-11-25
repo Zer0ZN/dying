@@ -12,7 +12,7 @@
 // ---------------------------------------------------------------------------
 
 import * as THREE from 'three';
-import { groundHeight } from '../core/config.js';
+import { WORLD, groundHeight } from '../core/config.js';
 
 const TMP = new THREE.Vector3();
 
@@ -111,6 +111,17 @@ export class CollisionSystem {
       if (top > best) best = top;
     }
     return best;
+  }
+
+  /**
+   * Deep water is not walkable. The lake bed keeps falling away, so without
+   * this the player walks off the bank, sinks under the surface and ends up
+   * looking at the underside of the water plane. Everything shallower than
+   * wading depth stays open so you can reach the very edge of the lake.
+   * @param {{x:number,z:number}} p
+   */
+  atWaterEdge(p) {
+    return groundHeight(p.x, p.z) < WORLD.waterY - 0.32;
   }
 
   /** True when the segment a→b is blocked, used by the camera to avoid walls. */

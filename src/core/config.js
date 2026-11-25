@@ -61,7 +61,10 @@ export const PALETTE = {
   plantGreen: 0x22331e,
 
   // --- atmosphere --------------------------------------------------------
-  fog: 0x14335c,
+  // Fog must sit on the horizon sky, not on the deep zenith: distant
+  // terrain fades into the air it is seen through, and that air is lit by
+  // the whole sky. A dark fog colour paints the base of the range black.
+  fog: 0x1b446f,
 };
 
 export const WORLD = {
@@ -133,7 +136,7 @@ export const WORLD = {
     intensity: 1.15,
   },
 
-  fogNear: 0.0011,
+  fogNear: 0.0012,
   fogFar: 0.9,
 };
 
@@ -270,12 +273,12 @@ export function mountainHeight(x, z) {
   h += (ridged(x * 0.145, z * 0.145, { seed: 83, octaves: 2 }) - 0.4) * 1.5;
 
   // ---- fit the crests inside the window --------------------------------
-  // Measured from the sofa the head of a north window opens to 9.5 degrees and
-  // the summit sat at 10.8, so the crest was clipped and the range read as a
-  // featureless pale band with no skyline. 0.76 brings the highest crest to
-  // about 8.2 degrees: the skyline and a strip of twilight sky now sit inside
-  // the opening, which is the whole reason the room has two big windows. Going
-  // lower than this starts to flatten the range when seen from the shore.
+  // The head of a north window, seen from the corner seat, cuts the sky at
+  // 7.9 degrees. A crest above that line is hidden by the lintel however tall
+  // it is, so the range is scaled until the snowy summit sits just under it —
+  // the skyline, the snow and a strip of twilight sky then all fall inside the
+  // opening, which is the whole reason the room has two big windows. Scaling
+  // lower than this flattens the range badly when it is seen from the shore.
 
   h *= 0.76;
 

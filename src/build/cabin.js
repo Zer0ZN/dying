@@ -342,7 +342,18 @@ export class CabinBuilder {
     // kept for the interior builder's older single-window call sites
     this.southWindow = this.southWindows[0];
 
-    this.worldColliderSegment(x0, cz, x1, cz, thickness, y0, y1);
+    // Collide the wall in two runs so the doorway is a real way out. A single
+    // full-width segment would seal the only exit from the building and the
+    // player could never reach the shore.
+    this.worldColliderSegment(x0, cz, doorCx - doorW / 2, cz, thickness, y0, y1);
+    this.worldColliderSegment(doorCx + doorW / 2, cz, x1, cz, thickness, y0, y1);
+    // ...and a lintel box over the opening, so you cannot walk through the
+    // wall above the door either.
+    this.colliders.push({
+      min: new THREE.Vector3(doorCx - doorW / 2, CABIN.floorY + doorH, cz - thickness / 2),
+      max: new THREE.Vector3(doorCx + doorW / 2, y1, cz + thickness / 2),
+      tag: 'wall',
+    });
     return g;
   }
 
