@@ -112,7 +112,12 @@ export function buildMountainMesh() {
       // sit high enough that couloirs and the shaded side of every crest stay
       // bare, because those dark ribs are the only thing that reads as a
       // mountain at this distance; too low and the range turns to meringue.
-      const slope = clamp((ny - 0.40) / 0.40, 0, 1);
+      // The displaced grid is smooth at this scale: a 430 m massif carrying
+      // 80 m of relief has face normals around ny 0.85-0.95 nearly everywhere,
+      // so a gate at 0.40 marks the whole range as flat and carpets it in
+      // snow. The gate has to sit just under the crest normals so only the
+      // genuinely flattened shoulders hold snow and every rib stays bare.
+      const slope = clamp((ny - 0.72) / 0.22, 0, 1);
 
       // Altitude ramp, calibrated to what the window can frame. From the sofa
       // the opening covers roughly 0-9 degrees, i.e. the foot of the range
@@ -141,8 +146,8 @@ export function buildMountainMesh() {
       // white, which from the windows reads as one pale sheet with no shape.
       // Breaking it up at a ~120 m wavelength keeps bare rock ribs between the
       // snowfields, and those ribs are what the eye reads as a mountain.
-      snow *= 0.45 + 1.05 * fbm(x * 0.0082, z * 0.0082, { seed: 125, octaves: 3 });
-      snow = smoothstep(0.26, 0.68, snow);
+      snow *= 0.22 + 1.42 * fbm(x * 0.0092, z * 0.0092, { seed: 125, octaves: 4 });
+      snow = smoothstep(0.30, 0.80, snow);
 
       // rock: shadowed faces darker, sun-facing faces pick up a little blue lift
       const face = clamp(0.5 + 0.5 * (nx * 0.44 + nz * -0.894), 0, 1);
@@ -154,10 +159,14 @@ export function buildMountainMesh() {
       col.multiplyScalar(0.72 + 0.52 * crev);
 
       // snow: deep blue in shade -> pale blue-white on top
-      snowCol.copy(cSnowDeep).lerp(cSnow, clamp(0.35 + alt * 0.9, 0, 1));
-      snowCol.lerp(cSnowLit, clamp((alt - 0.35) * 1.25, 0, 1) * 0.55);
+      // Snow has to be shaded by face direction, not only by altitude. Without
+      // this, every snowy slope sits at the same value and the massif reads as
+      // one soft white blob: the eye needs a lit flank, a shadowed flank and a
+      // crisp line between them to see a ridge at 400 m.
+      snowCol.copy(cSnowDeep).lerp(cSnow, clamp(0.20 + face * 1.05, 0, 1));
+      snowCol.lerp(cSnowLit, clamp((face - 0.55) * 1.5, 0, 1) * clamp(0.35 + alt * 0.8, 0, 1));
       // fine snow variation
-      snowCol.multiplyScalar(0.90 + 0.20 * fbm(x * 0.09, z * 0.09, { seed: 124, octaves: 2 }));
+      snowCol.multiplyScalar(0.86 + 0.26 * fbm(x * 0.09, z * 0.09, { seed: 124, octaves: 2 }));
 
       col.lerp(snowCol, snow);
 
@@ -270,9 +279,14 @@ export function buildMountainMesh() {
            float hi = smoothstep(24.0, 80.0, vHeight);
            // crest and bowl tops catch it, vertical couloirs do not
            float rim = smoothstep(0.10, 0.80, vWNormal.y);
-           float warm = hi * vSnow * (0.30 + 0.70 * rim) * uGlowStrength;
-           vec3 glowCol = mix(uGlowDeep, uGlow, clamp(0.35 + facing * 0.9, 0.0, 1.0));
-           totalEmissiveRadiance += glowCol * warm * 1.05;
+           // The afterglow lives on the LAST snow of the day, so it is keyed to
+           // the crest band and to faces turned toward where the sun went down.
+           // It has to be strong: the snow cover on these slopes is now sparse
+           // by design, and a 1.05 multiplier that looked right on an
+           // all-white range puts no visible warmth on a bare-rock one.
+           float warm = hi * vSnow * (0.22 + 0.78 * rim);
+           vec3 glowCol = mix(uGlowDeep, uGlow, clamp(0.30 + facing * 1.1, 0.0, 1.0));
+           totalEmissiveRadiance += glowCol * warm * (2.4 * uGlowStrength);
            // Cold sky bounce. A snowfield under a twilight sky is one of the
            // brightest things in the landscape even though no sun touches it —
            // it is lit by the whole dome. The punctual lights here cannot
@@ -287,7 +301,12 @@ export function buildMountainMesh() {
            // for a sky, and without this term the range collapses to one flat
            // dark-blue value and the window band loses its ridges entirely.
            float up = clamp(vWNormal.y, 0.0, 1.0);
-           totalEmissiveRadiance += vColor.rgb * (0.040 + 0.100 * up);
+           // Snow gets a further boost: at dusk a snowfield is lit by the whole
+           // dome plus bounce off the cloud deck, and it is the one thing in a
+           // night landscape that stays near-white. Without the extra weight the
+           // snow reads only slightly paler than the rock and the ridge line
+           // dissolves into the sky.
+           totalEmissiveRadiance += vColor.rgb * (0.040 + 0.100 * up) * (1.0 + 0.62 * vSnow);
          }`
       );
   };
