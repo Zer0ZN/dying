@@ -84,10 +84,14 @@ const FRAG = /* glsl */ `
     float az = max(dot(sunFlat, dirFlat), 0.0);
 
     // horizontal width of the glow lobe, and its vertical falloff
-    float azLobe = pow(az, 3.2) * 0.95 + pow(az, 16.0) * 0.65;
-    float vertLobe = exp(-pow((t - 0.020) / 0.150, 2.0));
+    // Kept deliberately narrow and weak. The sun is already well below the
+    // ridge, so what is left is a thin band hugging the horizon on one side.
+    // A wide lobe colours the whole south sky pink and the bedroom windows
+    // then read as a sunset instead of blue hour.
+    float azLobe = pow(az, 6.0) * 0.85 + pow(az, 26.0) * 0.55;
+    float vertLobe = exp(-pow((t - 0.014) / 0.085, 2.0));
     float glow = azLobe * vertLobe;
-    col += uSunColor * glow * 0.62;
+    col += uSunColor * glow * 0.30;
 
     // a very slightly brighter band all along the horizon, cool side too
     float band = exp(-pow(t / 0.070, 2.0));

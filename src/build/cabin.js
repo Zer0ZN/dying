@@ -13,6 +13,7 @@
 
 import * as THREE from 'three';
 import { CABIN, WIN, WORLD, PALETTE, farShoreHeight } from '../core/config.js';
+import { bakeMerge } from '../core/util.js';
 import { woodSiding, woodFloor, roofMetal, grainSurface, rockSurface } from '../core/textures.js';
 
 const V = (x, y, z) => new THREE.Vector3(x, y, z);
@@ -41,6 +42,14 @@ export class CabinBuilder {
     this._door();
     this._roof();
     this._trims();
+
+    // The shell is roughly 190 separate boxes and every one of them was its
+    // own draw call — more than the whole terrain. Baking them into one mesh
+    // per material leaves the silhouette identical and the frame budget free.
+    bakeMerge(this.group, 'cabin-merged');
+
+    // the hut across the lake stays a separate object so it can be culled,
+    // probed and moved on its own
     this._farCabin();
     return this.group;
   }

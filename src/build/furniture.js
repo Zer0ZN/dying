@@ -11,7 +11,7 @@
 import * as THREE from 'three';
 import { CABIN, PALETTE, WORLD } from '../core/config.js';
 import { artCanvas, fabricWeave, grainSurface, woodGrain } from '../core/textures.js';
-import { albedo, boxGeo, mergeByMaterial, roundedRectShape } from '../core/util.js';
+import { albedo, bakeMerge, boxGeo, roundedRectShape } from '../core/util.js';
 import { fbm, makeRng } from '../core/noise.js';
 
 // ---------------------------------------------------------------------------
@@ -241,17 +241,15 @@ export class FurnitureBuilder {
     this._wardrobe(7.06, 1.9, y);
     this._bedroomFrames(y);
 
-    // merge everything that shares a material to keep the draw call count low
-    const merged = [];
-    this.group.traverse((o) => {
-      if (o.isMesh && o.userData.mergeable) merged.push({ geo: o.geometry, mat: o.material });
+    // Merge everything that shares a material, world transforms baked in.
+    // The previous version fed raw geometries to mergeByMaterial and then
+    // removed only direct children — but every piece of furniture lives in a
+    // sub-group with its own position, so nothing was ever actually merged
+    // (96 meshes, 96 draw calls). bakeMerge handles both: it bakes
+    // matrixWorld into the vertices and walks the whole tree.
+    bakeMerge(this.group, 'furniture-merged', {
+      skip: (o) => o.userData.mergeable === false,
     });
-    const flat = mergeByMaterial(merged, 'furniture-merged');
-    flat.traverse((o) => { o.castShadow = true; o.receiveShadow = true; });
-    for (const m of this.group.children.slice()) {
-      if (m.isMesh && m.userData.mergeable) this.group.remove(m);
-    }
-    this.group.add(flat);
 
     return this.group;
   }

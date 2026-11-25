@@ -171,6 +171,18 @@ export function shoreHeight(x, z) {
   const shelf = ridged(x * 0.017 + 4.1, z * 0.019, { seed: 35, octaves: 3 });
   h += smoothstep(0.56, 0.96, shelf) * 1.5 * smoothstep(-16, -3, -Math.abs(d - 2.0));
 
+  // Low drifts beyond the clearing. Without this the bank is a constant
+  // BANK_TOP everywhere off the shoreline and the ground behind the cabin
+  // runs dead flat to the edge of the mesh, where it reads as a frozen sea
+  // meeting a ruler-straight horizon. The relief is gated to the land side so
+  // it can never lift the lake bed above the water plane.
+  const land = smoothstep(0.0, 14.0, -d);
+  const away = smoothstep(24.0, 150.0, Math.hypot(x, z + 4.0));
+  const drift = away * land;
+  h += drift * (fbm(x * 0.0085, z * 0.0085, { seed: 37, octaves: 3 }) - 0.5) * 30.0;
+  h += drift * (fbm(x * 0.026, z * 0.026, { seed: 38, octaves: 3 }) - 0.5) * 7.0;
+  h += drift * (ridged(x * 0.055, z * 0.055, { seed: 39, octaves: 2 }) - 0.42) * 2.2;
+
   // flat pad under the cabin so the building sits level
   const padX = smoothstep(CABIN.innerX + 6.0, CABIN.innerX * 0.35, Math.abs(x));
   const padZ = smoothstep(CABIN.innerZ + 4.5, CABIN.innerZ * 0.30, Math.abs(z + 0.35));
