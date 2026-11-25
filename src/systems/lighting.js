@@ -119,7 +119,11 @@ export class LightingSystem {
     lamp.castShadow = true;
     lamp.shadow.mapSize.set(1024, 1024);
     lamp.shadow.camera.near = 0.12;
-    lamp.shadow.camera.far = 12;
+    // far has to clear the far corner of the room: the lamp sits 2.3 m from the
+    // west wall but 12.8 m from the east one, so a 12 m frustum ended inside the
+    // room and everything past it rendered fully lit. The cut showed up on the
+    // north wall as a pale wedge with a hard curved border.
+    lamp.shadow.camera.far = 26;
     lamp.shadow.bias = -0.0015;
     lamp.shadow.normalBias = 0.04;
     this.group.add(lamp);

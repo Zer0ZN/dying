@@ -89,7 +89,10 @@ const FRAG = /* glsl */ `
     refl = mix(refl, refl2, 0.22);
 
     // ---- body colour: near-black teal, slightly lighter near the shore ---
-    float shore = exp(-max(vWorldPos.z - 8.0, 0.0) * 0.11);
+    // A steep exponential here banded visibly on the wide lake when seen from
+    // above (8-bit steps across a 200 m gradient), so the falloff is stretched
+    // out; the near-shore tint now arrives gradually instead of stepping.
+    float shore = exp(-max(vWorldPos.z - 8.0, 0.0) * 0.045);
     vec3 body = mix(uDeep, uShallow, shore * 0.55);
     body = mix(body, uTint, 0.16);
 
@@ -110,7 +113,9 @@ const FRAG = /* glsl */ `
     // is removed entirely and the wide term is widened further.
     vec3 H = normalize(uSunDir + viewDir);
     float ndh = max(dot(N, H), 0.0);
-    float spec = pow(ndh, 5.0) * 0.085;
+    // Kept deliberately weak: with a rippled normal a broad lobe breaks into
+    // radial streaks that read as searchlights fanning out from the shore.
+    float spec = pow(ndh, 5.0) * 0.030;
     // only where the water actually faces the southern glow
     float southFacing = smoothstep(-0.15, 0.85, dot(normalize(vec3(viewDir.x, 0.0, viewDir.z)), normalize(vec3(uSunDir.x, 0.0, uSunDir.z))));
     col += uSunColor * spec * (0.35 + 0.65 * southFacing);

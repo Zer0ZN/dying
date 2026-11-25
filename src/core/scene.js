@@ -238,16 +238,18 @@ export class SceneManager {
       case 'living-sofa':
         return this.setView(-0.9, y, 1.0, -5.2, y + 0.9, -3.2, 62);
       case 'bedroom':
-        // Seated in the doorway corner looking across the room: the bed, the
-        // bench at its foot, the nightstand and the wardrobe all fall inside
-        // one frame. A pose aimed straight at the north windows leaves the bed
-        // behind the camera entirely, which is what made this room read as an
-        // empty blue box.
-        return this.setView(0.95, y, 4.65, 5.30, y + 1.23, -1.20, 76);
+        // Close enough that the bed fills the middle of the frame with the two
+        // north windows above it: at the old corner seat the bed was a small
+        // object in the far corner and the room read as an empty blue box with
+        // a bed pushed against one wall.
+        return this.setView(1.60, y, 2.30, 4.90, y + 0.48, -3.60, 58);
       case 'bedroom-bed':
         return this.setView(6.6, y, -0.2, 3.6, y + 0.8, -4.2, 62);
       case 'window':
-        return this.setView(-3.6, y + 0.25, -2.4, -3.6, y + 1.6, 14, 40);
+        // Two metres from the glass, looking slightly up: at the old seat eight
+        // metres back the mullions filled the frame and the view through the
+        // panes was a strip of water. Up close the grid frames the snow crest.
+        return this.setView(-3.60, y, 3.10, -3.85, y + 0.68, 30, 60);
       case 'doorway':
         // Stand in the living room west of the partition and look east through
         // the opening: the dark timber jamb frames the bedroom floor and its
