@@ -14,6 +14,7 @@ been created successfully.
 
 import base64
 import json
+import os
 import subprocess
 import sys
 import urllib.error
@@ -21,6 +22,26 @@ import urllib.request
 
 REPO = "Zer0ZN/dying"
 BRANCH = "main"
+
+# The remote commits this script creates are NOT in the local object database
+# (there is no fetch path to github.com), so `rev-list <remote>..HEAD` fails
+# with "unknown revision".  Remember which local commit produced the remote
+# head instead, and walk from there next time.
+STATE = os.path.join(os.path.dirname(os.path.abspath(__file__)), ".pushstate")
+
+
+def read_state():
+    try:
+        with open(STATE) as f:
+            local, remote = f.read().split()
+        return local, remote
+    except (OSError, ValueError):
+        return None, None
+
+
+def write_state(local, remote):
+    with open(STATE, "w") as f:
+        f.write(f"{local} {remote}\n")
 
 
 def api(path, method="GET", payload=None, token=""):
@@ -62,7 +83,24 @@ def main():
         print("already up to date:", local_head)
         return
 
-    chain = git("rev-list", "--reverse", f"{remote_head}..{local_head}").splitlines()
+    # Local commit that the current remote head was built from.
+    known_local, known_remote = read_state()
+    if "--since" in sys.argv:
+        known_local = sys.argv[sys.argv.index("--since") + 1]
+    if known_remote != remote_head:
+        # Someone else pushed, or the state file is missing: fall back to the
+        # last commit we know about and verify it is an ancestor of HEAD.
+        if not known_local:
+            raise SystemExit(
+                "remote head %s is not in the local history and tools/.pushstate "
+                "is missing; pass the local commit it was built from as --since <sha>"
+                % remote_head[:7]
+            )
+        print(f"warning: remote moved ({known_remote[:7]} -> {remote_head[:7]}); "
+              f"using local base {known_local[:7]}")
+    base_local = known_local
+
+    chain = git("rev-list", "--reverse", f"{base_local}..{local_head}").splitlines()
     print(f"remote {remote_head[:7]} -> local {local_head[:7]}  ({len(chain)} commit(s))")
 
     parent = remote_head
@@ -121,6 +159,7 @@ def main():
         {"sha": parent, "force": False},
         token,
     )
+    write_state(local_head, parent)
     print("pushed", parent)
 
 
