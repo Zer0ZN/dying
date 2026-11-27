@@ -581,8 +581,13 @@ export class FurnitureBuilder {
     this._frame(px, 1.30, floorY + 1.86, 0.52, 0.40, -Math.PI / 2, 'flower');
     this._frame(px, 2.45, floorY + 1.62, 0.34, 0.46, -Math.PI / 2, 'ink');
 
-    // above the sofa on the south wall
-    this._frame(-3.55, -CABIN.innerZ + 0.01, floorY + 1.95, 0.86, 0.56, 0, 'ridge');
+    // Above the sofa on the south wall, in the strip of wall between the
+    // front door's casing and the living-room window's casing.  This used to
+    // be a 0.86 m wide frame centred at x = -3.55, which put its left third
+    // straight across the door opening (the door spans x -5.325 .. -3.775).
+    // Casing outer edges leave only x -3.665 .. -2.885 clear, so the frame is
+    // sized to that gap with a few centimetres of breathing room each side.
+    this._frame(-3.275, -CABIN.innerZ + 0.01, floorY + 1.90, 0.50, 0.38, 0, 'ridge');
   }
 
   _bedroomFrames(floorY) {
