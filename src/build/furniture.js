@@ -170,7 +170,17 @@ function furnitureMaterials() {
       // looks like daylight bedding in a room that has no daylight.
       color: 0x6a7789, roughness: 0.94, metalness: 0.0,
     }),
-    sheet: new THREE.MeshStandardMaterial({ color: albedo(0x9aa6b4, 0.66), roughness: 0.9, metalness: 0.0 }),
+    // Pillows and the turned-down sheet band are the only pale objects in the
+    // bedroom, and the north window spill lands on them dead-on, so they have to
+    // sit well below white or they read as lit plastic in an unlit room.
+    sheet: new THREE.MeshStandardMaterial({ color: albedo(0x7e8a99, 0.74), roughness: 0.93, metalness: 0.0 }),
+    // The mattress is only ever seen where the duvet fails to cover it, and a
+    // pale slab of linen next to a dark duvet reads as a lit foam block. Under
+    // a blue window spill the mattress body should stay in the same value band
+    // as the bedding above it.
+    mattress: new THREE.MeshStandardMaterial({
+      map: fabricBlue.map, color: albedo(0x4b5566, 0.78), roughness: 0.95, metalness: 0.0,
+    }),
     darkWood: new THREE.MeshStandardMaterial({
       map: wood.map, normalMap: wood.normalMap, normalScale: new THREE.Vector2(0.7, 0.7),
       color: 0xffffff, roughness: 0.62, metalness: 0.04,
@@ -641,8 +651,10 @@ export class FurnitureBuilder {
       }
     }
 
-    // mattress
-    const matt = new THREE.Mesh(softSlab(w, len, mattH, 0.10, 0.055), M.sheet);
+    // mattress: a dark ticking, not bare linen. The duvet covers most of it but
+    // the 4 cm step at the head and the hem gap at the foot still show, and a
+    // pale slab there turned the whole bed into a lit foam block.
+    const matt = new THREE.Mesh(softSlab(w, len, mattH, 0.10, 0.055), M.mattress);
     matt.position.y = frameH + 0.12 + mattH / 2;
     matt.castShadow = true;
     matt.receiveShadow = true;
