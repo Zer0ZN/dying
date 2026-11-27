@@ -192,10 +192,13 @@ export class LightingSystem {
     this.group.add(bedBounce2);
 
     // --- a whisper of warm light bleeding out of the windows ---------------
-    const out = new THREE.PointLight(0xffb066, 2.4, 16, 2.0);
-    out.position.set(-3.6, CABIN.floorY + 1.7, CABIN.innerZ + 0.2);
-    out.castShadow = false;
-    this.group.add(out);
+    // Deliberately left out. This used to be a PointLight parked in the window
+    // reveal (innerZ + 0.2), which put the bulb 0.15 m from the muntins: the
+    // inverse-square falloff drove the inner mullion faces to pure white and a
+    // candle-like streak ran down the centre pier in the close-up view. It also
+    // contributed almost nothing, because the lamp behind the glass already
+    // reads as a warm window from outside — measured exterior delta was under
+    // one 8-bit level everywhere except the muntin faces it was blowing out.
 
     // The south windows face away from the lake, so their light is pure sky
     // spill: dim, cold and directional, and it only has to make the back of

@@ -238,11 +238,11 @@ export class SceneManager {
       case 'living-sofa':
         return this.setView(-0.9, y, 1.0, -5.2, y + 0.9, -3.2, 62);
       case 'bedroom':
-        // Close enough that the bed fills the middle of the frame with the two
-        // north windows above it: at the old corner seat the bed was a small
-        // object in the far corner and the room read as an empty blue box with
-        // a bed pushed against one wall.
-        return this.setView(1.60, y, 2.30, 4.90, y + 0.48, -3.60, 58);
+        // Stand at the foot of the bed looking north, so the two big north
+        // windows are the subject and the bed reads as a dark mass across the
+        // bottom of the frame.  The brief puts the mountain view in the
+        // bedroom's NORTH wall; the old seat faced the small south windows.
+        return this.setView(5.20, y, -5.00, 3.10, y + 0.78, 5.60, 70);
       case 'bedroom-bed':
         return this.setView(6.6, y, -0.2, 3.6, y + 0.8, -4.2, 62);
       case 'window':
