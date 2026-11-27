@@ -234,21 +234,28 @@ export class FurnitureBuilder {
     const y = CABIN.floorY;
 
     // ---- living room ------------------------------------------------------
-    this._sofa(-3.55, -3.02, 0, y);
+    // The living room used to be 11.1 m deep and the sofa could stand at
+    // x -3.55 with the front door opening behind its left arm. With the room
+    // at 8.9 m the gap in front of the door is only 0.86 m, so the group moves
+    // 1.80 m east instead: the sofa's left arm now sits at x -3.42, 0.35 m
+    // clear of the door casing at -3.775, and the door opens onto bare floor.
+    // The sofa still faces the lake windows and sits under the south window.
+    this._sofa(-1.75, -3.02, 0, y);
     this._floorLamp(-5.85, -3.42, y);
-    this._coffeeTable(-3.55, -1.05, y);
-    this._rug(-3.55, -2.05, 4.9, 3.5, y);
-    this._sideboard(-7.15, 0.95, y);
+    this._coffeeTable(-1.75, -1.05, y);
+    this._rug(-2.25, -2.05, 4.9, 3.5, y);
+    this._sideboard(-6.60, 0.95, y);
     this._wallFrames(y);
     // On the coffee-table top, not floating beside it: the table surface is
-    // floorY + 0.4275, and the group's origin is the base of the pot.
-    this._smallPlant(-3.95, -1.05, y + 0.4275);
+    // floorY + 0.4275, and the group's origin is the base of the pot. Tracks
+    // the table, which moved east with the rest of the group.
+    this._smallPlant(-2.15, -1.05, y + 0.4275);
 
     // ---- bedroom ----------------------------------------------------------
     this._bed(4.30, -3.28, y);
     this._nightstand(2.86, -4.18, y);
     this._bench(4.30, -1.72, y);
-    this._wardrobe(7.06, 1.9, y);
+    this._wardrobe(6.54, 1.9, y);
     this._bedroomFrames(y);
 
     // Merge everything that shares a material, world transforms baked in.
@@ -577,16 +584,18 @@ export class FurnitureBuilder {
     this._frame(-wallX + 0.01, 1.65, floorY + 1.72, 0.46, 0.62, Math.PI / 2, 'ridge');
     this._frame(-wallX + 0.01, 2.62, floorY + 1.90, 0.36, 0.30, Math.PI / 2, 'ink');
 
-    // partition, living side
+    // partition, living side.  The partition doorway runs from z 2.375 to
+    // z 3.525 (pz 4.45 minus 1.5, one metre wide), so the second frame moved
+    // off z 2.45 — its top half was hanging across the jamb.
     this._frame(px, 1.30, floorY + 1.86, 0.52, 0.40, -Math.PI / 2, 'flower');
-    this._frame(px, 2.45, floorY + 1.62, 0.34, 0.46, -Math.PI / 2, 'ink');
+    this._frame(px, 1.95, floorY + 1.62, 0.34, 0.46, -Math.PI / 2, 'ink');
 
-    // Above the sofa on the south wall, in the strip of wall between the
-    // front door's casing and the living-room window's casing.  This used to
-    // be a 0.86 m wide frame centred at x = -3.55, which put its left third
-    // straight across the door opening (the door spans x -5.325 .. -3.775).
-    // Casing outer edges leave only x -3.665 .. -2.885 clear, so the frame is
-    // sized to that gap with a few centimetres of breathing room each side.
+    // On the south wall above the lamp, in the strip of wall between the front
+    // door's casing and the living-room window's casing. This used to be a
+    // 0.86 m wide frame centred at x = -3.55, which put its left third straight
+    // across the door opening (the door spans x -5.325 .. -3.775). Casing outer
+    // edges leave only x -3.665 .. -2.885 clear, so the frame is sized to that
+    // gap with a few centimetres of breathing room each side.
     this._frame(-3.275, -CABIN.innerZ + 0.01, floorY + 1.90, 0.50, 0.38, 0, 'ridge');
   }
 

@@ -315,8 +315,10 @@ export class CabinBuilder {
     // facade the rhythm a lakeside cabin actually has.
     const windows = [
       { cx: -1.95, w: 1.70, h: 1.62, sill: 0.92 }, // living room
-      { cx: 3.45, w: 1.36, h: 1.50, sill: 0.95 }, // bedroom, west
-      { cx: 5.95, w: 1.36, h: 1.50, sill: 0.95 }, // bedroom, east
+      // The bedroom pair moved in with the narrower east end: the old 5.95
+      // left only 0.54 m of corner pier once the wall came in to 7.17.
+      { cx: 3.30, w: 1.36, h: 1.50, sill: 0.95 }, // bedroom, west
+      { cx: 5.75, w: 1.36, h: 1.50, sill: 0.95 }, // bedroom, east
     ];
 
     // Generic cut-out: the wall is decomposed into the horizontal bands and

@@ -78,7 +78,7 @@ export class SceneManager {
     // yaw = PI faces +Z, which is where the lake and the peaks are. The seat is
     // behind the sofa so the first frame contains the sofa, the lamp and the lit
     // range through the windows — the composition the room exists for.
-    const seat = new THREE.Vector3(-6.90, CABIN.floorY, -5.15);
+    const seat = new THREE.Vector3(-6.45, CABIN.floorY, -4.15);
     // Seated in the south-west corner looking north-east along the room's long
     // axis: the sofa back and a lit arm sit in the near left, the arc lamp lands
     // near centre with its warm pool on the rug and the coffee table's plant,
@@ -88,7 +88,7 @@ export class SceneManager {
     // yaw/pitch measured from the target below rather than guessed: the view
     // must open on exactly this framing, so both are derived from the same
     // numbers as view('living').
-    const lookAt = new THREE.Vector3(-1.60, CABIN.floorY + 0.93, 5.90);
+    const lookAt = new THREE.Vector3(-1.30, CABIN.floorY + 0.93, 4.60);
     const dx = lookAt.x - seat.x;
     const dy = lookAt.y - (seat.y + 1.54);
     const dz = lookAt.z - seat.z;
@@ -234,27 +234,33 @@ export class SceneManager {
     const y = CABIN.floorY;
     switch (name) {
       case 'living':
-        return this.setView(-6.90, y, -5.15, -1.60, y + 0.93, 5.90, 72);
+        // Same corner seat and same aim as the start pose, pulled inside the
+        // narrower walls: 0.40 m off the west plaster, 0.30 m off the south. The
+        // arc lamp stands between the seat and the windows, so its shade and the
+        // length of its arm read across the left third of the frame.
+        return this.setView(-6.45, y, -4.15, -1.30, y + 0.93, 4.60, 72);
       case 'living-sofa':
-        return this.setView(-0.9, y, 1.0, -5.2, y + 0.9, -3.2, 62);
+        // The reverse shot now has to look a little further south because the
+        // sofa's back sits against the south wall instead of mid-room.
+        return this.setView(-0.85, y, 0.75, -4.90, y + 0.9, -3.10, 62);
       case 'bedroom':
-        // Stand at the foot of the bed looking north, so the two big north
-        // windows are the subject and the bed reads as a dark mass across the
-        // bottom of the frame.  The brief puts the mountain view in the
-        // bedroom's NORTH wall; the old seat faced the small south windows.
-        return this.setView(5.20, y, -5.00, 3.10, y + 0.78, 5.60, 70);
+        // From the middle of the room looking north: the bed fills the lower
+        // half as a dark mass under its two north windows. Standing north of
+        // the bed put it behind the camera; standing right back at the south
+        // wall shrank it to a small object in a large empty floor.
+        return this.setView(4.10, y, 1.40, 4.30, y + 0.53, -4.10, 62);
       case 'bedroom-bed':
-        return this.setView(6.6, y, -0.2, 3.6, y + 0.8, -4.2, 62);
+        return this.setView(6.30, y, 0.10, 3.30, y + 0.80, -4.35, 64);
       case 'window':
         // Two metres from the glass, looking slightly up: at the old seat eight
         // metres back the mullions filled the frame and the view through the
         // panes was a strip of water. Up close the grid frames the snow crest.
-        return this.setView(-3.60, y, 3.10, -3.85, y + 0.68, 30, 60);
+        return this.setView(-3.35, y, 2.45, -3.60, y + 0.68, 30, 60);
       case 'doorway':
         // Stand in the living room west of the partition and look east through
         // the opening: the dark timber jamb frames the bedroom floor and its
         // north windows. Aiming south instead framed the closed front door.
-        return this.setView(-1.10, y, 3.55, 3.20, y + 0.63, 4.15, 62);
+        return this.setView(-1.10, y, 2.70, 3.20, y + 0.63, 3.30, 62);
       case 'exterior':
         return this.setView(2.5, 3.1, -22.5, 0, 4.0, 5, 46);
       case 'exterior-front':

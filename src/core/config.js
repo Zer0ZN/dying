@@ -71,13 +71,22 @@ export const WORLD = {
   waterY: 0,
 
   cabin: {
-    innerX: 7.55,     // interior spans -7.55 .. +7.55  (15.1 wide)
-    innerZ: 5.55,     // interior spans -5.55 .. +5.55  (11.1 deep)
+    // The interior used to be 15.1 x 11.1 m, which read as a hall rather than
+    // a cabin: the sofa left a wide empty floor in front of it and the bedroom
+    // had a whole unused south half. The footprint is now 13.7 x 8.9 m with the
+    // furniture still at full size — the room got tighter, not the sofa
+    // smaller. Everything derives from these two numbers, so the plinth, the
+    // roof run, the wall skins and the shore pad all follow automatically.
+    innerX: 6.85,     // interior spans -6.85 .. +6.85  (13.7 wide)
+    innerZ: 4.45,     // interior spans -4.45 .. +4.45  (8.9 deep)
     wall: 0.32,       // exterior wall thickness
     partition: 0.24,  // living-room / bedroom wall thickness
     floorY: 1.62,     // top surface of the floor
     ceilingH: 3.20,   // interior height
-    ridgeRise: 3.75,  // ridge above the top plate (steeper = reads as a chalet, not a shed)
+    // Scaled with the depth so the roof keeps its original pitch: the old
+    // ridge was 3.75 over halfZOuter 5.87 (0.639), and 3.05 / 4.77 keeps that
+    // same 0.639 slope, so the silhouette reads as the same chalet, smaller.
+    ridgeRise: 3.05,  // ridge above the top plate (steeper = reads as a chalet, not a shed)
     eaveOverhang: 0.85,
     get halfXOuter() { return this.innerX + this.wall; },
     get halfZOuter() { return this.innerZ + this.wall; },
@@ -106,8 +115,12 @@ export const WORLD = {
     // this far more honestly than shrinking the range.
     sill: 0.60,
     height: 2.42,
-    living: [{ cx: -5.35, w: 2.90 }, { cx: -1.95, w: 2.90 }],
-    bedroom: [{ cx: 2.62, w: 2.46 }, { cx: 5.62, w: 2.46 }],
+    // X positions move with the narrower footprint; the widths are unchanged
+    // so the panes keep their proportion. Piers: 0.35 / 0.70 (living) and
+    // 0.31 / 0.54 / 0.34 (bedroom) — the openings still read as three bays,
+    // not as one continuous band of glass.
+    living: [{ cx: -5.05, w: 2.90 }, { cx: -1.65, w: 2.90 }],
+    bedroom: [{ cx: 2.28, w: 2.46 }, { cx: 5.28, w: 2.46 }],
   },
 
   // lake / shore
